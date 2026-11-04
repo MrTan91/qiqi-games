@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; media-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>今晚吃哪个甜·抽签器</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今晚吃哪个甜</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(160deg,#ffe3ef 0%,#ffd7e6 40%,#e6e0ff 100%);padding:20px}
+.card{width:100%;max-width:420px;background:#fff;border-radius:24px;padding:24px 22px;
+  box-shadow:0 12px 40px rgba(255,120,170,.25);text-align:center}
+h1{font-size:20px;margin:0 0 6px;color:#e04a86}
+.sub{font-size:12px;color:#b98ca6;margin-bottom:18px}
+.result{font-size:26px;font-weight:700;color:#e04a86;min-height:68px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#fff2f7,#ffe8f4);border-radius:18px;padding:10px;
+  transition:transform .18s}
+.result.pop{transform:scale(1.06)}
+button{width:100%;margin-top:16px;padding:14px;border:0;border-radius:16px;
+  background:linear-gradient(135deg,#ff7fb0,#ff5f9e);color:#fff;font-size:16px;font-weight:600;
+  cursor:pointer;box-shadow:0 6px 18px rgba(255,95,158,.4)}
+button:active{transform:translateY(2px)}
+.tags{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tag{font-size:13px;padding:6px 12px;border-radius:999px;background:#fff0f6;color:#d24b81;
+  border:1px solid #ffd4e6;cursor:pointer;user-select:none}
+.tag.off{opacity:.35;text-decoration:line-through}
+.tip{margin-top:14px;font-size:11px;color:#c2a0b4}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>今晚吃哪个甜 🍰</h1>
+  <div class="sub">点名字可以关掉这个选项</div>
+  <div class="result" id="res">想不出吃啥？戳下面</div>
+  <button id="go">给我抽一个</button>
+  <div class="tags" id="tags"></div>
+  <div class="tip">抽到不喜欢的就再抽一次，反正甜的都好吃</div>
+</div>
+<script>
+var items=["草莓奶油蛋糕","冰淇淋球","奶茶（三分糖）","芝士蛋挞","红豆双皮奶","巧克力布朗尼","一块提拉米苏","麻薯","芒果班戟","桂花酒酿小圆子","焦糖布丁","可可热饮","奶油泡芙","抹茶冰淇淋","香蕉船","水果酸奶杯"];
+var off={};
+function render(){
+  var box=document.getElementById("tags");box.innerHTML="";
+  items.forEach(function(t){
+    var d=document.createElement("div");
+    d.className="tag"+(off[t]?" off":"");
+    d.textContent=t;
+    d.onclick=function(){off[t]=!off[t];render();};
+    box.appendChild(d);
+  });
+}
+render();
+document.getElementById("go").onclick=function(){
+  var pool=items.filter(function(t){return !off[t];});
+  if(!pool.length){document.getElementById("res").textContent="全关了…那就喝水吧";return;}
+  var i=0,target=pool[Math.floor(Math.random()*pool.length)];
+  var res=document.getElementById("res");
+  var spin=setInterval(function(){
+    res.textContent=pool[Math.floor(Math.random()*pool.length)];
+    i++;
+    if(i>8){clearInterval(spin);res.textContent=target;res.classList.add("pop");
+      setTimeout(function(){res.classList.remove("pop");},200);}
+  },70);
+};
+</script>
+</body>
+</html>
