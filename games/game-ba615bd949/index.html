@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; media-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'"><title>猫猫躲躲（触屏左右躲）</title><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>猫猫躲躲</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#1a1420;color:#ffd6e8;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;user-select:none;touch-action:none;overflow:hidden}
+h1{margin:12px 0 4px;font-size:18px;color:#ff9ecb}
+#info{font-size:13px;margin-bottom:6px}
+canvas{background:#241b2e;border:2px solid #ff9ecb;border-radius:14px;touch-action:none;display:block}
+#hint{font-size:12px;color:#b893a8;margin:10px 16px;text-align:center;line-height:1.5}
+</style></head><body>
+<h1>🐾 猫猫躲躲</h1>
+<div id="info">存活 <span id="t">0.0</span>s　最高 <span id="best">0.0</span>s</div>
+<canvas id="c" width="320" height="420"></canvas>
+<div id="hint">手指按在屏幕上左右拖动，操控小猫躲开追来的敌人</div>
+<script>
+var cv=document.getElementById('c'),g=cv.getContext('2d'),W=320,H=420;
+function fit(){var s=Math.min((window.innerWidth-24)/W,(window.innerHeight-150)/H);cv.style.width=(W*s)+'px';cv.style.height=(H*s)+'px'}
+window.addEventListener('resize',fit);fit();
+var px=160,py=360,cats=[],t0=0,alive=false,best=0,dragging=false,cool=0;
+function spawn(){cats.push({x:Math.random()*280+20,y:-20,v:1.2+Math.random()*1.6})}
+function reset(){cats=[];px=160;py=360;t0=performance.now();alive=true;cool=0}
+function toX(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)/r.width*W}
+cv.addEventListener('pointerdown',function(e){e.preventDefault();if(!alive)reset();dragging=true;px=Math.max(16,Math.min(304,toX(e)))},{passive:false});
+cv.addEventListener('pointermove',function(e){if(!dragging)return;e.preventDefault();px=Math.max(16,Math.min(304,toX(e)))},{passive:false});
+window.addEventListener('pointerup',function(){dragging=false});
+window.addEventListener('pointercancel',function(){dragging=false});
+function loop(now){
+  g.clearRect(0,0,W,H);
+  if(!alive){
+    g.fillStyle='#ffd6e8';g.font='18px sans-serif';g.textAlign='center';
+    g.fillText('按住屏幕开始',160,190);
+    g.font='13px sans-serif';g.fillStyle='#c9a8bd';
+    g.fillText('左右拖动躲开小猫',160,218);
+    if(best>0){g.fillStyle='#8ff';g.fillText('上次 '+best.toFixed(1)+'s',160,252)}
+    requestAnimationFrame(loop);return;
+  }
+  var dt=(now-t0)/1000;
+  if(Math.random()<0.03+dt*0.004)spawn();
+  for(var i=0;i<cats.length;i++){
+    var c=cats[i];
+    var ax=px-c.x,ay=py-c.y,ad=Math.sqrt(ax*ax+ay*ay)||1;
+    var sp=c.v*(1+dt*0.03);
+    c.x+=ax/ad*sp;c.y+=ay/ad*sp;
+    if(Math.sqrt(Math.pow(c.x-px,2)+Math.pow(c.y-py,2))<20){
+      alive=false;best=Math.max(best,dt);
+      document.getElementById('best').textContent=best.toFixed(1);
+    }
+  }
+  var keep=[];for(var j=0;j<cats.length;j++){if(cats[j].y<460)keep.push(cats[j])}cats=keep;
+  g.fillStyle='#ff9ecb';
+  g.beginPath();g.arc(px,py-6,7,Math.PI,0);g.fill();
+  g.beginPath();g.arc(px,py+6,7,0,Math.PI);g.fill();
+  g.fillStyle='#ffd6e8';g.beginPath();g.arc(px,py,9,0,7);g.fill();
+  for(var k=0;k<cats.length;k++){
+    var cc=cats[k];
+    g.fillStyle='#c9b6ff';g.beginPath();g.arc(cc.x,cc.y,9,0,7);g.fill();
+    g.fillStyle='#241b2e';g.fillRect(cc.x-4,cc.y-2,3,3);g.fillRect(cc.x+1,cc.y-2,3,3);
+  }
+  g.fillStyle='#8ff';g.font='12px sans-serif';g.textAlign='center';
+  document.getElementById('t').textContent=dt.toFixed(1);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script></body></html>
